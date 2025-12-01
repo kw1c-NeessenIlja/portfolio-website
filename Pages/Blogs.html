@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alle Blogs & Projecten - Ilja Neessen</title>
+
+<!-- Markdown rendering -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+<!-- Supabase Client -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+html, body {
+    margin:0; padding:0; height:100%; display:flex; flex-direction:column;
+    font-family:"Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    background-color:#F8F9FC; color:#0F172A;
+}
+header {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:20px 10%; background-color:#1E3A8A; flex-wrap:wrap;
+    box-shadow:0 4px 10px rgba(0,0,0,0.15);
+}
+header h1 { margin:0; color:#F8FAFF; font-size:2rem; }
+nav ul { display:flex; gap:20px; padding:0; margin:0; align-items:center; }
+nav li { list-style:none; }
+nav a {
+    display:flex; justify-content:center; align-items:center;
+    width:120px; height:45px; background-color:#2563EB;
+    border:none; border-radius:10px; color:white; text-decoration:none; font-weight:600;
+    transition:0.25s ease;
+}
+nav a:hover { background-color:#3B82F6; transform:translateY(-3px); box-shadow:0 4px 12px rgba(37,99,235,0.4); }
+
+main { flex:1; padding:40px 10%; }
+
+.login-box, .admin-panel { background:white; border-radius:10px; box-shadow:0 4px 12px rgba(0,0,0,0.05); margin-bottom:30px; padding:20px; }
+.login-box input, .login-box button, #addBlogForm input, #addBlogForm textarea, #addBlogForm button {
+    display:block; width:100%; margin-bottom:10px; padding:12px; font-size:14px; border-radius:5px; border:2px solid #e5e7eb;
+}
+#addBlogForm textarea { min-height:120px; resize:vertical; }
+#addBlogForm input:focus, #addBlogForm textarea:focus, .login-box input:focus { outline:none; border-color:#2563EB; }
+
+.btn { cursor:pointer; font-weight:bold; transition: all 0.3s; }
+.btn-primary { background:#2563EB; color:white; border:none; border-radius:5px; }
+.btn-primary:hover { background:#3B82F6; }
+.btn-success { background:#10B981; color:white; border:none; border-radius:5px; }
+.btn-success:hover { background:#059669; }
+.btn-danger { background:#EF4444; color:white; border:none; border-radius:5px; }
+.btn-danger:hover { background:#DC2626; }
+
+#blogsContainer { display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:25px; }
+
+.blog-post { display:flex; flex-direction:column; background:white; border-radius:10px; overflow:hidden;
+    box-shadow:0 4px 12px rgba(0,0,0,0.1); transition:transform 0.25s ease, box-shadow 0.25s ease; cursor:pointer;
+}
+.blog-post:hover { transform:translateY(-5px); box-shadow:0 10px 20px rgba(0,0,0,0.15); }
+.blog-image { width:100%; height:200px; object-fit:cover; }
+.blog-content { padding:15px 20px; flex:1; display:flex; flex-direction:column; }
+.blog-title { font-size:20px; margin-bottom:5px; color:#1F2937; font-weight:bold; }
+.blog-date { color:#6B7280; font-size:12px; margin-bottom:10px; }
+.blog-text { color:#374151; font-size:14px; line-height:1.5; flex:1; overflow:hidden; }
+.blog-tags { margin-top:5px; font-size:12px; color:#2563EB; }
+
+.delete-btn { background:#EF4444; color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer; align-self:flex-end; margin-bottom:10px; }
+.delete-btn:hover { background:#DC2626; }
+
+.hidden { display:none; }
+.file-input-label { cursor:pointer; background:#3B82F6;color:white;padding:10px;border-radius:5px; display:inline-block; margin-bottom:10px; }
+.file-input-label:hover { background:#2563EB; }
+.preview-image { max-width:100%; max-height:200px; margin-top:10px; border-radius:5px; }
+#filePreview { color:#2563EB; font-weight:bold; margin-bottom:10px; }
+
+.user-info { color:#E6F0FF; margin-right:10px; }
+.header-controls { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+
+footer { text-align:center; padding:20px; background-color:#1E3A8A; color:#E6F0FF; margin-top:auto; }
+
+#searchBlogs { width:100%; padding:10px; margin-bottom:20px; border-radius:5px; border:2px solid #e5e7eb; }
+
+#blogModal { position:fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); display:none; justify-content:center; align-items:center; z-index:1000; }
+#blogModal.show { display:flex; }
+#blogModal > div { background:white; border-radius:10px; max-width:600px; width:90%; max-height:80%; overflow-y:auto; padding:20px; position:relative; }
+#blogModal span { position:absolute; top:10px; right:15px; cursor:pointer; font-size:20px; font-weight:bold; }
+#modalImage { width:100%; height:auto; margin-bottom:15px; border-radius:5px; }
+#modalFile { display:block; margin-top:10px; font-weight:bold; color:#2563EB; text-decoration:none; }
+
+.loading { text-align:center; color:#6B7280; padding:20px; }
+.error { background:#FEE2E2; color:#991B1B; padding:10px; border-radius:5px; margin-bottom:10px; }
+</style>
+</head>
+<body>
+
+<header>
+<h1>Blogs & Projecten - Ilja Neessen</h1>
+<div class="header-controls">
+    <span id="userInfo" class="user-info hidden"></span>
+    <button id="authBtn" class="btn btn-primary" onclick="toggleAuth()">Admin Login</button>
+    <nav>
+        <ul>
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="Stage.html">Stage</a></li>
+            <li><a href="AboutMe.html">Over Mij</a></li>
+        </ul>
+    </nav>
+</div>
+</header>
+
+<main>
+
+<input type="text" id="searchBlogs" placeholder="🔍 Zoek blogs/projects..." oninput="filterBlogs()">
+
+<div class="login-box hidden" id="loginBox">
+    <h2>🔒 Admin Login</h2>
+    <div id="loginError"></div>
+    <input type="text" id="username" placeholder="Gebruikersnaam">
+    <input type="password" id="password" placeholder="Wachtwoord">
+    <button class="btn btn-primary" onclick="login()">Inloggen</button>
+    <p style="color:#6B7280;font-size:14px;text-align:center;margin-top:10px;">Hint: admin/admin123</p>
+</div>
+
+<div class="admin-panel hidden" id="adminPanel">
+    <h3>🔧 Admin Panel</h3>
+    <button class="btn btn-success" onclick="toggleAddBlog()">➕ Nieuwe Blog/Project</button>
+    <div id="addBlogForm" class="hidden">
+        <div id="addBlogError"></div>
+        <input type="text" id="blogTitle" placeholder="Blog titel">
+        <textarea id="blogContent" placeholder="Blog inhoud (Markdown ondersteund)"></textarea>
+        <input type="text" id="blogTags" placeholder="Tags (comma separated)">
+        <label class="file-input-label">
+            🖼️ Afbeelding Uploaden
+            <input type="file" id="blogImage" accept="image/*" style="display:none;" onchange="previewImage()">
+        </label>
+        <div id="imagePreview"></div>
+
+        <label class="file-input-label">
+            📦 Project Uploaden (.zip)
+            <input type="file" id="blogFile" accept=".zip" style="display:none;" onchange="previewFile()">
+        </label>
+        <div id="filePreview"></div>
+
+        <input type="datetime-local" id="blogDate" placeholder="Datum en tijd (optioneel)">
+        <button class="btn btn-success" onclick="addBlog()">Publiceren</button>
+        <button class="btn" style="background:#6B7280;color:white;margin-top:5px;" onclick="cancelAddBlog()">Annuleren</button>
+    </div>
+</div>
+
+<div id="blogsContainer"><p class="loading">Blogs laden...</p></div>
+</main>
+
+<footer>&copy; 2025 Ilja Neessen</footer>
+
+<div id="blogModal">
+    <div>
+        <span onclick="closeModal()">&times;</span>
+        <img id="modalImage" class="hidden">
+        <h2 id="modalTitle"></h2>
+        <p id="modalDate"></p>
+        <div id="modalContent"></div>
+        <div id="modalTags"></div>
+        <a id="modalFile" class="hidden" download></a>
+    </div>
+</div>
+
+<script>
+// ===== SUPABASE CONFIGURATIE =====
+const SUPABASE_URL = 'https://ijosozqvlfceivtlnhhq.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlqb3NvenF2bGZjZWl2dGxuaGhxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ1OTAwNTQsImV4cCI6MjA4MDE2NjA1NH0.NoAeAtGMiBRTKAVc8pRSOW03yWs8noWT9-TRTaIkbUY';
+
+const ADMIN_USERNAME = 'admin';
+const ADMIN_PASSWORD = 'admin123';
+
+// Fix: gebruik createClient van de globale supabase namespace
+const { createClient } = supabase;
+const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ===== GLOBALE VARIABELEN =====
+let isLoggedIn = false;
+let currentImageFile = null;
+let currentZipFile = null;
+let allBlogs = [];
+
+// ===== SIMPELE LOGIN =====
+function toggleAuth() {
+    if (isLoggedIn) {
+        logout();
+    } else {
+        document.getElementById('loginBox').classList.toggle('hidden');
+    }
+}
+
+function login() {
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    const errorDiv = document.getElementById('loginError');
+    
+    errorDiv.innerHTML = '';
+    
+    if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+        isLoggedIn = true;
+        document.getElementById('loginBox').classList.add('hidden');
+        document.getElementById('adminPanel').classList.remove('hidden');
+        document.getElementById('userInfo').textContent = 'Ingelogd als: ' + username;
+        document.getElementById('userInfo').classList.remove('hidden');
+        document.getElementById('authBtn').textContent = 'Uitloggen';
+        document.getElementById('authBtn').className = 'btn btn-danger';
+        document.getElementById('username').value = '';
+        document.getElementById('password').value = '';
+        loadBlogs();
+    } else {
+        errorDiv.innerHTML = '<div class="error">Verkeerde gebruikersnaam of wachtwoord!</div>';
+    }
+}
+
+function logout() {
+    isLoggedIn = false;
+    document.getElementById('adminPanel').classList.add('hidden');
+    document.getElementById('userInfo').classList.add('hidden');
+    document.getElementById('authBtn').textContent = 'Admin Login';
+    document.getElementById('authBtn').className = 'btn btn-primary';
+    cancelAddBlog();
+    loadBlogs();
+}
+
+// ===== BLOGS LADEN =====
+async function loadBlogs() {
+    const container = document.getElementById('blogsContainer');
+    container.innerHTML = '<p class="loading">Blogs laden...</p>';
+    
+    const { data, error } = await supabaseClient
+        .from('blogs')
+        .select('*')
+        .order('date', { ascending: false });
+    
+    if (error) {
+        container.innerHTML = '<div class="error">Fout bij laden: ' + error.message + '</div>';
+        return;
+    }
+    
+    allBlogs = data || [];
+    renderBlogs(allBlogs);
+}
+
+function renderBlogs(blogs) {
+    const container = document.getElementById('blogsContainer');
+    
+    if (blogs.length === 0) {
+        container.innerHTML = '<p style="text-align:center;color:#6B7280;">Geen blogs gevonden...</p>';
+        return;
+    }
+    
+    container.innerHTML = blogs.map(b => `
+        <div class="blog-post" data-id="${b.id}">
+            ${b.image_url ? '<img src="' + b.image_url + '" class="blog-image">' : ''}
+            <div class="blog-content">
+                ${isLoggedIn ? '<button class="delete-btn" data-id="' + b.id + '">🗑️ Verwijderen</button>' : ''}
+                <h3 class="blog-title">${b.title}</h3>
+                <p class="blog-date">${new Date(b.date).toLocaleString('nl-NL')}</p>
+                <p class="blog-text">${truncateText(b.content)}</p>
+                ${b.tags && b.tags.length > 0 ? '<p class="blog-tags">' + b.tags.join(', ') + '</p>' : ''}
+            </div>
+        </div>
+    `).join('');
+    
+    document.querySelectorAll('.blog-post').forEach(post => {
+        post.addEventListener('click', () => {
+            const blogId = Number(post.dataset.id);
+            const blog = allBlogs.find(b => b.id === blogId);
+            if (blog) openModal(blog);
+        });
+    });
+    
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', e => {
+            e.stopPropagation();
+            deleteBlog(Number(btn.dataset.id));
+        });
+    });
+}
+
+function filterBlogs() {
+    const query = document.getElementById('searchBlogs').value.toLowerCase();
+    const filtered = allBlogs.filter(b => {
+        return b.title.toLowerCase().includes(query) ||
+               b.content.toLowerCase().includes(query) ||
+               (b.tags && b.tags.join(',').toLowerCase().includes(query));
+    });
+    renderBlogs(filtered);
+}
+
+function truncateText(text, maxLength = 200) {
+    return text.length <= maxLength ? text : text.substring(0, maxLength) + '...';
+}
+
+// ===== BLOG TOEVOEGEN =====
+function toggleAddBlog() {
+    document.getElementById('addBlogForm').classList.toggle('hidden');
+}
+
+function cancelAddBlog() {
+    document.getElementById('addBlogForm').classList.add('hidden');
+    document.getElementById('blogTitle').value = '';
+    document.getElementById('blogContent').value = '';
+    document.getElementById('blogImage').value = '';
+    document.getElementById('imagePreview').innerHTML = '';
+    document.getElementById('blogFile').value = '';
+    document.getElementById('filePreview').innerHTML = '';
+    document.getElementById('blogTags').value = '';
+    document.getElementById('blogDate').value = '';
+    document.getElementById('addBlogError').innerHTML = '';
+    currentImageFile = null;
+    currentZipFile = null;
+}
+
+function previewImage() {
+    const file = document.getElementById('blogImage').files[0];
+    if (file) {
+        currentImageFile = file;
+        const reader = new FileReader();
+        reader.onload = e => {
+            document.getElementById('imagePreview').innerHTML = 
+                '<img src="' + e.target.result + '" class="preview-image">';
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+function previewFile() {
+    const file = document.getElementById('blogFile').files[0];
+    if (file) {
+        currentZipFile = file;
+        document.getElementById('filePreview').innerHTML = 
+            '<p>Bestand geselecteerd: ' + file.name + '</p>';
+    }
+}
+
+async function addBlog() {
+    if (!isLoggedIn) {
+        alert('Je moet ingelogd zijn!');
+        return;
+    }
+    
+    const title = document.getElementById('blogTitle').value;
+    const content = document.getElementById('blogContent').value;
+    const tags = document.getElementById('blogTags').value.split(',').map(t => t.trim()).filter(t => t);
+    const dateInput = document.getElementById('blogDate').value;
+    const errorDiv = document.getElementById('addBlogError');
+    
+    errorDiv.innerHTML = '';
+    
+    if (!title || !content) {
+        errorDiv.innerHTML = '<div class="error">Vul titel en inhoud in!</div>';
+        return;
+    }
+    
+    let imageUrl = null;
+    let fileUrl = null;
+    let fileName = null;
+    
+    // Upload afbeelding naar Supabase Storage
+    if (currentImageFile) {
+        const imageFileName = Date.now() + '-' + currentImageFile.name;
+        const { data: imageData, error: imageError } = await supabaseClient.storage
+            .from('blog-images')
+            .upload(imageFileName, currentImageFile);
+        
+        if (imageError) {
+            errorDiv.innerHTML = '<div class="error">Afbeelding upload mislukt: ' + imageError.message + '</div>';
+            return;
+        }
+        
+        const { data: publicUrlData } = supabaseClient.storage
+            .from('blog-images')
+            .getPublicUrl(imageFileName);
+        
+        imageUrl = publicUrlData.publicUrl;
+    }
+    
+    // Upload ZIP bestand naar Supabase Storage
+    if (currentZipFile) {
+        fileName = currentZipFile.name;
+        const zipFileName = Date.now() + '-' + fileName;
+        const { data: fileData, error: fileError } = await supabaseClient.storage
+            .from('blog-files')
+            .upload(zipFileName, currentZipFile);
+        
+        if (fileError) {
+            errorDiv.innerHTML = '<div class="error">Bestand upload mislukt: ' + fileError.message + '</div>';
+            return;
+        }
+        
+        const { data: publicUrlData } = supabaseClient.storage
+            .from('blog-files')
+            .getPublicUrl(zipFileName);
+        
+        fileUrl = publicUrlData.publicUrl;
+    }
+    
+    const date = dateInput ? new Date(dateInput).toISOString() : new Date().toISOString();
+    
+    // Blog toevoegen aan database
+    const { error } = await supabaseClient
+        .from('blogs')
+        .insert([{
+            title,
+            content,
+            tags,
+            image_url: imageUrl,
+            file_url: fileUrl,
+            file_name: fileName,
+            date,
+            downloads: 0
+        }]);
+    
+    if (error) {
+        errorDiv.innerHTML = '<div class="error">Blog toevoegen mislukt: ' + error.message + '</div>';
+    } else {
+        cancelAddBlog();
+        loadBlogs();
+    }
+}
+
+// ===== BLOG VERWIJDEREN =====
+async function deleteBlog(id) {
+    if (!isLoggedIn) {
+        alert('Je moet ingelogd zijn!');
+        return;
+    }
+    
+    if (!confirm('Weet je zeker dat je deze blog wilt verwijderen?')) return;
+    
+    // Eerst de blog ophalen
+    const { data: blog, error: fetchError } = await supabaseClient
+        .from('blogs')
+        .select('*')
+        .eq('id', id)
+        .single();
+    
+    if (fetchError) {
+        alert('Fout bij ophalen blog: ' + fetchError.message);
+        return;
+    }
+    
+    // Verwijder afbeelding uit storage
+    if (blog && blog.image_url) {
+        try {
+            // Extract alleen de filename na de laatste slash
+            const urlParts = blog.image_url.split('/');
+            const imagePath = urlParts[urlParts.length - 1];
+            const { error: imageError } = await supabaseClient.storage
+                .from('blog-images')
+                .remove([imagePath]);
+            
+            if (imageError) {
+                console.warn('Waarschuwing bij verwijderen afbeelding:', imageError.message);
+            }
+        } catch (e) {
+            console.warn('Fout bij verwijderen afbeelding:', e);
+        }
+    }
+    
+    // Verwijder bestand uit storage
+    if (blog && blog.file_url) {
+        try {
+            const urlParts = blog.file_url.split('/');
+            const filePath = urlParts[urlParts.length - 1];
+            const { error: fileError } = await supabaseClient.storage
+                .from('blog-files')
+                .remove([filePath]);
+            
+            if (fileError) {
+                console.warn('Waarschuwing bij verwijderen bestand:', fileError.message);
+            }
+        } catch (e) {
+            console.warn('Fout bij verwijderen bestand:', e);
+        }
+    }
+    
+    // Verwijder blog uit database
+    const { error: deleteError } = await supabaseClient
+        .from('blogs')
+        .delete()
+        .eq('id', id);
+    
+    if (deleteError) {
+        alert('Verwijderen mislukt: ' + deleteError.message);
+    } else {
+        alert('Blog succesvol verwijderd!');
+        loadBlogs();
+    }
+}
+
+// ===== MODAL =====
+async function openModal(blog) {
+    const modal = document.getElementById('blogModal');
+    modal.classList.add('show');
+    
+    document.getElementById('modalTitle').textContent = blog.title;
+    document.getElementById('modalDate').textContent = new Date(blog.date).toLocaleString('nl-NL');
+    document.getElementById('modalContent').innerHTML = marked.parse(blog.content);
+    
+    const modalImg = document.getElementById('modalImage');
+    if (blog.image_url) {
+        modalImg.src = blog.image_url;
+        modalImg.classList.remove('hidden');
+    } else {
+        modalImg.classList.add('hidden');
+    }
+    
+    const modalFile = document.getElementById('modalFile');
+    if (blog.file_url) {
+        modalFile.href = blog.file_url;
+        modalFile.download = blog.file_name;
+        modalFile.textContent = `📦 Download Project: ${blog.file_name} (${blog.downloads} downloads)`;
+        modalFile.classList.remove('hidden');
+        
+        modalFile.onclick = async () => {
+            const { error } = await supabaseClient
+                .from('blogs')
+                .update({ downloads: blog.downloads + 1 })
+                .eq('id', blog.id);
+            
+            if (!error) {
+                blog.downloads++;
+                modalFile.textContent = `📦 Download Project: ${blog.file_name} (${blog.downloads} downloads)`;
+            }
+        };
+    } else {
+        modalFile.classList.add('hidden');
+    }
+    
+    const modalTags = document.getElementById('modalTags');
+    modalTags.innerHTML = blog.tags && blog.tags.length > 0 ? 
+        '<p class="blog-tags">' + blog.tags.join(', ') + '</p>' : '';
+}
+
+function closeModal() {
+    document.getElementById('blogModal').classList.remove('show');
+}
+
+// ===== INITIALISATIE =====
+document.addEventListener('DOMContentLoaded', loadBlogs);
+</script>
+
+</body>
+</html>
