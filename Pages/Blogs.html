@@ -88,6 +88,124 @@ footer { text-align:center; padding:20px; background-color:#1E3A8A; color:#E6F0F
 
 .loading { text-align:center; color:#6B7280; padding:20px; }
 .error { background:#FEE2E2; color:#991B1B; padding:10px; border-radius:5px; margin-bottom:10px; }
+
+/* ---------- MOBILE RESPONSIVE ---------- */
+@media (max-width: 768px) {
+    header {
+        padding: 15px 5%;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    header h1 {
+        font-size: 1.5rem;
+        text-align: center;
+    }
+
+    .header-controls {
+        width: 100%;
+        justify-content: center;
+    }
+
+    nav ul {
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    nav a {
+        width: 100px;
+        height: 40px;
+        font-size: 0.9rem;
+    }
+
+    main {
+        padding: 20px 5%;
+    }
+
+    #searchBlogs {
+        font-size: 14px;
+    }
+
+    #blogsContainer {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .blog-post {
+        margin-bottom: 10px;
+    }
+
+    .blog-image {
+        height: 180px;
+    }
+
+    .blog-title {
+        font-size: 18px;
+    }
+
+    .login-box, .admin-panel {
+        padding: 15px;
+    }
+
+    #addBlogForm input,
+    #addBlogForm textarea,
+    #addBlogForm button,
+    .login-box input,
+    .login-box button {
+        font-size: 14px;
+        padding: 10px;
+    }
+
+    #blogModal > div {
+        width: 95%;
+        max-height: 85%;
+        padding: 15px;
+    }
+
+    #modalTitle {
+        font-size: 1.3rem;
+    }
+}
+
+@media (max-width: 480px) {
+    header h1 {
+        font-size: 1.2rem;
+    }
+
+    nav a {
+        width: 85px;
+        height: 38px;
+        font-size: 0.85rem;
+    }
+
+    .user-info {
+        font-size: 0.85rem;
+    }
+
+    #authBtn {
+        font-size: 0.85rem;
+        padding: 8px 12px;
+    }
+
+    .blog-title {
+        font-size: 16px;
+    }
+
+    .blog-text {
+        font-size: 13px;
+    }
+
+    .delete-btn {
+        padding: 6px 12px;
+        font-size: 13px;
+    }
+
+    .file-input-label {
+        font-size: 14px;
+        padding: 8px;
+    }
+}
 </style>
 </head>
 <body>
