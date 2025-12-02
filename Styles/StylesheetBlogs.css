@@ -44,7 +44,8 @@ nav a {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 120px;
+    min-width: 90px;
+    padding: 10px 15px;
     height: 45px;
     background-color: #2563EB;
     border: none;
@@ -53,6 +54,8 @@ nav a {
     text-decoration: none;
     font-weight: 600;
     transition: 0.25s ease;
+    white-space: nowrap;
+    box-sizing: border-box;
 }
 
 nav a:hover {
@@ -415,6 +418,7 @@ main {
     border-radius: 10px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     padding: 20px;
+    min-width: 0;
 }
 
 .demo-section h2 {
@@ -436,6 +440,8 @@ main {
     border: 2px solid #e5e7eb;
     border-radius: 10px;
     background: #0a0a0a;
+    display: block;
+    box-sizing: border-box;
 }
 
 #colorDisplay {
@@ -452,13 +458,15 @@ main {
     font-weight: bold;
     color: #333;
     text-shadow: 0 2px 4px rgba(255, 255, 255, 0.5);
+    box-sizing: border-box;
 }
 
 .color-info {
-    background: rgba(255, 255, 255, 0.9);
+    background: white;
     padding: 20px;
     border-radius: 10px;
     margin-top: 15px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .color-values {
@@ -527,39 +535,31 @@ footer {
     #colorDisplay {
         height: 300px;
     }
-
-    .color-values {
-        grid-template-columns: 1fr;
-    }
 }
 
 @media (max-width: 768px) {
     header {
         padding: 15px 5%;
-        flex-direction: column;
-        gap: 15px;
     }
 
     header h1 {
         font-size: 1.5rem;
-        text-align: center;
     }
 
     nav ul {
-        flex-wrap: wrap;
-        justify-content: center;
         gap: 10px;
+        flex-wrap: wrap;
     }
 
     nav a {
-        width: 100px;
+        min-width: 80px;
+        padding: 8px 12px;
         height: 40px;
         font-size: 0.9rem;
     }
 
     main {
         padding: 20px 5%;
-        font-size: 1rem;
     }
 
     .section {
@@ -593,9 +593,8 @@ footer {
         font-size: 1rem;
     }
 
-    .header-controls {
-        width: 100%;
-        justify-content: center;
+    .color-values {
+        grid-template-columns: 1fr 1fr;
     }
 
     #blogModal > div {
@@ -605,18 +604,34 @@ footer {
 }
 
 @media (max-width: 480px) {
+    header {
+        padding: 10px 3%;
+    }
+
     header h1 {
         font-size: 1.2rem;
     }
 
+    nav ul {
+        width: 100%;
+        justify-content: center;
+        gap: 8px;
+    }
+
     nav a {
-        width: 80px;
-        height: 35px;
-        font-size: 0.8rem;
+        min-width: 70px;
+        padding: 6px 10px;
+        height: 36px;
+        font-size: 0.85rem;
     }
 
     main {
-        font-size: 0.9rem;
+        padding: 15px 3%;
+        font-size: 1rem;
+    }
+
+    .section {
+        padding: 15px;
     }
 
     .section h2 {
@@ -628,7 +643,7 @@ footer {
     }
 
     #dmxIframe {
-        height: 300px;
+        height: 350px;
     }
 
     #colorDisplay {
@@ -636,8 +651,14 @@ footer {
         font-size: 0.9rem;
     }
 
+    .color-values {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
     .color-value-item {
         font-size: 12px;
+        padding: 8px;
     }
 
     .btn {
