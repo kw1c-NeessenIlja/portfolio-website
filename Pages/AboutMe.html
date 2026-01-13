@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Over Mij - Ilja Neessen</title>
+    <link rel="stylesheet" href="../Styles/StylesheetBlogs.css">
+    <style>
+        .about-hero {
+            background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%);
+            padding: 80px 10%;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .about-hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 500px;
+            height: 500px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .about-hero::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -5%;
+            width: 400px;
+            height: 400px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-30px); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .profile-image {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            border: 6px solid white;
+            margin: 0 auto 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 72px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .about-hero h1 {
+            font-size: 3rem;
+            margin: 0 0 15px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .about-hero .tagline {
+            font-size: 1.4rem;
+            opacity: 0.95;
+            font-weight: 300;
+        }
+
+        .about-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            padding: 60px 10%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .about-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .about-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, #3B82F6, #8B5CF6);
+        }
+
+        .about-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+        }
+
+        .card-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        .about-card h2 {
+            color: #1E3A8A;
+            margin: 0 0 20px;
+            font-size: 1.8rem;
+        }
+
+        .about-card p {
+            color: #4B5563;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .skill-badge {
+            background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 600;
+            color: #1E40AF;
+            border: 2px solid #BFDBFE;
+            transition: all 0.3s ease;
+        }
+
+        .skill-badge:hover {
+            transform: scale(1.05);
+            border-color: #3B82F6;
+            background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%);
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 40px;
+            margin-top: 30px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(180deg, #3B82F6 0%, #8B5CF6 100%);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 30px;
+            padding-left: 20px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -30px;
+            top: 5px;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: #3B82F6;
+            border: 3px solid white;
+            box-shadow: 0 0 0 3px #DBEAFE;
+        }
+
+        .timeline-item h3 {
+            color: #1E3A8A;
+            margin: 0 0 5px;
+            font-size: 1.1rem;
+        }
+
+        .timeline-item .date {
+            color: #6B7280;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        .timeline-item p {
+            margin: 0;
+            color: #4B5563;
+            line-height: 1.6;
+        }
+
+        .full-width-card {
+            grid-column: 1 / -1;
+        }
+
+        .contact-links {
+            display: flex;
+            gap: 20px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .contact-btn {
+            flex: 1;
+            min-width: 200px;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 600;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .contact-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .contact-btn.secondary {
+            background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        }
+
+        .contact-btn.secondary:hover {
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+        }
+
+        @media (max-width: 1024px) {
+            .about-content {
+                grid-template-columns: 1fr;
+                padding: 40px 5%;
+            }
+
+            .about-hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .about-hero .tagline {
+                font-size: 1.2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .about-hero {
+                padding: 60px 5%;
+            }
+
+            .about-hero h1 {
+                font-size: 2rem;
+            }
+
+            .about-hero .tagline {
+                font-size: 1rem;
+            }
+
+            .profile-image {
+                width: 140px;
+                height: 140px;
+                font-size: 56px;
+            }
+
+            .about-card {
+                padding: 30px 25px;
+            }
+
+            .skills-grid {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            }
+
+            .contact-links {
+                flex-direction: column;
+            }
+
+            .contact-btn {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-inner">
+            <h1>Ilja Neessen</h1>
+            <nav>
+                <ul>
+                    <li><a href="../index.html">Home</a></li>
+                    <li><a href="Blogs.html">Blogs</a></li>
+                    <li><a href="DMX_Demo.html">Stage</a></li>
+                    <li><a href="AboutMe.html">Over Mij</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="about-hero">
+        <div class="hero-content">
+            <div class="profile-image">👨‍💻</div>
+            <h1>Ilja Neessen</h1>
+            <p class="tagline">Student | Developer | Tech Enthusiast</p>
+        </div>
+    </div>
+
+    <div class="about-content">
+        <div class="about-card">
+            <h2>Wie ben ik?</h2>
+            <p>
+                Hey! Ik ben Ilja, een gepassioneerde student die graag werkt met technologie en nieuwe dingen leert. 
+                Momenteel loop ik stage en ontwikkel ik mijn vaardigheden in web development, DMX systemen en meer.
+            </p>
+            <p>
+                Ik houd van uitdagende projecten waar ik creative oplossingen kan bedenken en implementeren. 
+                Van frontend design tot backend systemen, ik vind het allemaal interessant!
+            </p>
+        </div>
+
+        <div class="about-card">
+            <h2>Mijn Stage</h2>
+            <p>
+                Tijdens mijn stage werk ik aan diverse projecten die mijn technische vaardigheden verder ontwikkelen. 
+                Van het bouwen van web applicaties tot het werken met DMX lighting systemen.
+            </p>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <h3>Start Stage</h3>
+                    <div class="date">Augustus 2024</div>
+                    <p>Begin van mijn stage traject met diverse technische opdrachten</p>
+                </div>
+                <div class="timeline-item">
+                    <h3>Lichtbak Software</h3>
+                    <div class="date">September - Oktober 2024</div>
+                    <p>Ontwikkeling van C# software voor het aansturen van lichtbakken</p>
+                </div>
+                <div class="timeline-item">
+                    <h3>DMX Controller & Custom Servers</h3>
+                    <div class="date">November - December 2024</div>
+                    <p>Programmeren van DMX systemen en bouwen van custom server architectuur</p>
+                </div>
+                <div class="timeline-item">
+                    <h3>Portfolio Website</h3>
+                    <div class="date">Januari 2025</div>
+                    <p>Bouwen van deze portfolio website met blog systeem en DMX demo</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="about-card full-width-card">
+            <h2>Skills & Technologieën</h2>
+            <p>Tijdens mijn opleiding en stage heb ik gewerkt met verschillende technologieën en tools:</p>
+            <div class="skills-grid">
+                <div class="skill-badge">HTML/CSS</div>
+                <div class="skill-badge">JavaScript</div>
+                <div class="skill-badge">C#</div>
+                <div class="skill-badge">Supabase</div>
+                <div class="skill-badge">Git</div>
+                <div class="skill-badge">Custom Servers</div>
+                <div class="skill-badge">Responsive Design</div>
+                <div class="skill-badge">DMX Systems</div>
+                <div class="skill-badge">Web APIs</div>
+                <div class="skill-badge">UI/UX Design</div>
+            </div>
+        </div>
+
+        <div class="about-card full-width-card">
+            <h2>Contact</h2>
+            <p>Wil je meer weten over mijn projecten of heb je vragen? Neem gerust contact met me op!</p>
+            <div class="contact-links">
+                <a href="mailto:ilja.neesen@edu-kw1c.nl" class="contact-btn">
+                    Email me
+                </a>
+                <a href="https://github.com/kw1c-NeessenIlja" target="_blank" class="contact-btn secondary">
+                    GitHub
+                </a>
+                <a href="https://www.linkedin.com/in/ilja-neessen-a26a512a7/" target="_blank" class="contact-btn secondary">
+                    LinkedIn
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Ilja Neessen</p>
+    </footer>
+
+</body>
+</html>

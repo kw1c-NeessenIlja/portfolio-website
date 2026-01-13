@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portfolio Ilja Neessen</title>
     <link rel="stylesheet" href="Styles/StylesheetBlogs.css">
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -32,7 +34,7 @@
 
         <!-- STAGE SECTION -->
         <div class="section">
-            <h2>Stage – Wat doe ik?</h2>
+            <h2>Stage - Wat doe ik?</h2>
             <p>Tijdens mijn stage werk ik aan verschillende projecten, leer ik nieuwe skills en deel ik regelmatig updates via blogs.</p>
         </div>
 
@@ -49,32 +51,55 @@
     </footer>
 
     <script>
+        // Supabase configuratie
+        const SUPABASE_URL = 'https://ijosozqvlfceivtlnhhq.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlqb3NvenF2bGZjZWl2dGxuaGhxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ1OTAwNTQsImV4cCI6MjA4MDE2NjA1NH0.NoAeAtGMiBRTKAVc8pRSOW03yWs8noWT9-TRTaIkbUY';
+
+        // Initialize Supabase client
+        const { createClient } = window.supabase;
+        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
         document.addEventListener("DOMContentLoaded", () => {
             loadRecentBlogs();
         });
 
-        function loadRecentBlogs() {
-            const stored = localStorage.getItem("portfolio-blogs");
-            let blogs = stored ? JSON.parse(stored) : [];
-
-            // Laatste 3 blogs
-            blogs = blogs.slice(0, 3);
-
+        async function loadRecentBlogs() {
             const container = document.getElementById("recentBlogs");
+            container.innerHTML = '<p style="color:#6b7280;">Blogs laden...</p>';
 
-            if (blogs.length === 0) {
-                container.innerHTML = `<p style="color:#6b7280;">Nog geen blogs geplaatst...</p>`;
-                return;
+            try {
+                // Fetch laatste 3 blogs van Supabase
+                const { data, error } = await supabaseClient
+                    .from('blogs')
+                    .select('*')
+                    .order('date', { ascending: false })
+                    .limit(3);
+
+                if (error) {
+                    console.error('Error loading blogs:', error);
+                    container.innerHTML = `<p style="color:#ef4444;">Fout bij laden van blogs.</p>`;
+                    return;
+                }
+
+                if (!data || data.length === 0) {
+                    container.innerHTML = `<p style="color:#6b7280;">Nog geen blogs geplaatst...</p>`;
+                    return;
+                }
+
+                // Render blogs
+                container.innerHTML = data.map(blog => `
+                    <div class="blog-card">
+                        <h3>${blog.title}</h3>
+                        <p style="font-size:14px;color:#6b7280;">${new Date(blog.date).toLocaleDateString('nl-NL')}</p>
+                        <p>${blog.content.substring(0, 120)}...</p>
+                        <a href="Pages/Blogs.html">Lees meer →</a>
+                    </div>
+                `).join("");
+
+            } catch (err) {
+                console.error('Exception loading blogs:', err);
+                container.innerHTML = `<p style="color:#ef4444;">Fout bij laden van blogs.</p>`;
             }
-
-            container.innerHTML = blogs.map(blog => `
-                <div class="blog-card">
-                    <h3>${blog.title}</h3>
-                    <p style="font-size:14px;color:#6b7280;">${blog.date}</p>
-                    <p>${blog.content.substring(0, 120)}...</p>
-                    <a href="Pages/Blogs.html">Lees meer →</a>
-                </div>
-            `).join("");
         }
     </script>
 

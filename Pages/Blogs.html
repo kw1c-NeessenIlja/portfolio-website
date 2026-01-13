@@ -33,6 +33,11 @@
 
 <main>
 
+<div class="header-controls">
+    <span id="userInfo" class="user-info hidden"></span>
+    <button id="authBtn" class="btn btn-primary" onclick="toggleAuth()">Admin Login</button>
+</div>
+
 <input type="text" id="searchBlogs" placeholder="🔍 Zoek blogs/projects..." oninput="filterBlogs()">
 
 <div class="login-box hidden" id="loginBox">
